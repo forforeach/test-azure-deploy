@@ -23,5 +23,8 @@
   "homepage": "https://github.com/forforeach/test-azure-deploy#readme",
   "dependencies": {
     "jquery": "^3.0.0"
+  },
+  "devDependencies": {
+    "gulp": "^3.9.1"
   }
 }
