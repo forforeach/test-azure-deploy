@@ -23,7 +23,7 @@ setlocal enabledelayedexpansion
 SET ARTIFACTS=%~dp0%..\artifacts
 
 IF NOT DEFINED DEPLOYMENT_SOURCE (
-  SET DEPLOYMENT_SOURCE=%~dp0%.
+  SET DEPLOYMENT_SOURCE=%~dp0%\dist.
 )
 
 IF NOT DEFINED DEPLOYMENT_TARGET (
@@ -109,7 +109,7 @@ IF EXIST "%DEPLOYMENT_TARGET%\package.json" (
 IF EXIST "%DEPLOYMENT_TARGET%\gulpfile.js" (
   echo running gulp build
   pushd "%DEPLOYMENT_TARGET%"
-  call :ExecuteCmd gulp build
+  call :ExecuteCmd gulp
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
 )
