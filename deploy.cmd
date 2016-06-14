@@ -22,12 +22,12 @@ setlocal enabledelayedexpansion
 
 SET ARTIFACTS=%~dp0%..\artifacts
 
-IF NOT DEFINED BUILD_SOURCE (
-  SET BUILD_SOURCE=%~dp0%
+IF NOT DEFINED DEPLOYMENT_SOURCE (
+  SET DEPLOYMENT_SOURCE=%~dp0%
 )
 
-IF NOT DEFINED DEPLOYMENT_SOURCE (
-  SET DEPLOYMENT_SOURCE=%~dp0%\dist
+IF NOT DEFINED DIST_FOLDER (
+  SET DIST_FOLDER=%DEPLOYMENT_SOURCE%\dist
 )
 
 IF NOT DEFINED DEPLOYMENT_TARGET (
@@ -60,7 +60,7 @@ goto Deployment
 
 IF DEFINED KUDU_SELECT_NODE_VERSION_CMD (
   :: The following are done only on Windows Azure Websites environment
-  call %KUDU_SELECT_NODE_VERSION_CMD% "%BUILD_SOURCE%" "%DEPLOYMENT_TARGET%" "%DEPLOYMENT_TEMP%"
+  call %KUDU_SELECT_NODE_VERSION_CMD% "%DEPLOYMENT_SOURCE%" "%DEPLOYMENT_TARGET%" "%DEPLOYMENT_TEMP%"
   IF !ERRORLEVEL! NEQ 0 goto error
 
   IF EXIST "%DEPLOYMENT_TEMP%\__nodeVersion.tmp" (
@@ -96,17 +96,17 @@ echo Handling node.js deployment.
 call :SelectNodeVersion
 
 :: 2. Install npm packages
-IF EXIST "%BUILD_SOURCE%\package.json" (
-  pushd "%BUILD_SOURCE%"
+IF EXIST "%DEPLOYMENT_SOURCE%\package.json" (
+  pushd "%DEPLOYMENT_SOURCE%"
   call :ExecuteCmd !NPM_CMD! install
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
 )
 
 :: 3. Run gulp build
-IF EXIST "%BUILD_SOURCE%\gulpfile.js" (
+IF EXIST "%DEPLOYMENT_SOURCE%\gulpfile.js" (
   echo running gulp build
-  pushd "%BUILD_SOURCE%"
+  pushd "%DEPLOYMENT_SOURCE%"
   call :ExecuteCmd gulp
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
@@ -114,9 +114,9 @@ IF EXIST "%BUILD_SOURCE%\gulpfile.js" (
 
 :: 4. KuduSync
 IF /I "%IN_PLACE_DEPLOYMENT%" NEQ "1" (
-  echo deploying from %DEPLOYMENT_SOURCE%
+  echo deploying from %DIST_FOLDER%
 
-  call :ExecuteCmd "%KUDU_SYNC_CMD%" -v 50 -f "%DEPLOYMENT_SOURCE%" -t "%DEPLOYMENT_TARGET%" -n "%NEXT_MANIFEST_PATH%" -p "%PREVIOUS_MANIFEST_PATH%" -i ".git;.hg;.deployment;deploy.cmd"
+  call :ExecuteCmd "%KUDU_SYNC_CMD%" -v 50 -f "%DIST_FOLDER%" -t "%DEPLOYMENT_TARGET%" -n "%NEXT_MANIFEST_PATH%" -p "%PREVIOUS_MANIFEST_PATH%" -i ".git;.hg;.deployment;deploy.cmd"
   IF !ERRORLEVEL! NEQ 0 goto error
 )
 
