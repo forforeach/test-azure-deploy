@@ -101,7 +101,14 @@ call :SelectNodeVersion
 IF EXIST "%DEPLOYMENT_TARGET%\package.json" (
   pushd "%DEPLOYMENT_TARGET%"
   call :ExecuteCmd !NPM_CMD! install --production
-  call :ExecuteCmd gulp build
+  IF !ERRORLEVEL! NEQ 0 goto error
+  popd
+)
+
+:: 4. Run gulp build
+IF EXIST "%DEPLOYMENT_TARGET%\gulpfile.js" (
+  pushd "%DEPLOYMENT_TARGET%"
+  call :ExecuteCmd "%appdata%\node_modules\.bin\gulp.cmd" build
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
 )
