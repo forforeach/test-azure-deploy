@@ -107,7 +107,7 @@ IF EXIST "%DEPLOYMENT_SOURCE%\package.json" (
 IF EXIST "%DEPLOYMENT_SOURCE%\gulpfile.js" (
   echo running gulp build
   pushd "%DEPLOYMENT_SOURCE%"
-  call :ExecuteCmd gulp
+  call :ExecuteCmd gulp --production
   IF !ERRORLEVEL! NEQ 0 goto error
   popd
 )
